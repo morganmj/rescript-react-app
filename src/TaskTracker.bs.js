@@ -4,6 +4,7 @@ import * as Curry from "rescript/lib/es6/curry.js";
 import * as React from "react";
 import * as Belt_Array from "rescript/lib/es6/belt_Array.js";
 import * as Task$MyResApp from "./Task.bs.js";
+import * as Hooks$MyResApp from "./Hooks.bs.js";
 import * as Header$MyResApp from "./Header.bs.js";
 import * as AddTask$MyResApp from "./AddTask.bs.js";
 
@@ -18,37 +19,31 @@ function TaskTracker(Props) {
                   return !prev;
                 }));
   };
-  var match$1 = React.useState(function () {
-        return Task$MyResApp.defaultTasks;
-      });
-  var setTodos = match$1[1];
+  var todos = Hooks$MyResApp.useObservableValue(Task$MyResApp.defaultTasksSubject, Task$MyResApp.defaultTasks);
   var addTask = function (task) {
-    return Curry._1(setTodos, (function (prevTodos) {
-                  return Belt_Array.concat(prevTodos, [task]);
-                }));
+    Task$MyResApp.defaultTasksSubject.next(Belt_Array.concat(todos, [task]));
+    
   };
   var deleteTask = function (id) {
-    return Curry._1(setTodos, (function (prevTodos) {
-                  return prevTodos.filter(function (task) {
-                              return task.id !== id;
-                            });
-                }));
+    Task$MyResApp.defaultTasksSubject.next(todos.filter(function (task) {
+              return task.id !== id;
+            }));
+    
   };
   var toggleReminder = function (id) {
-    return Curry._1(setTodos, (function (prevTodos) {
-                  return prevTodos.map(function (task) {
-                              if (task.id === id) {
-                                return {
-                                        id: task.id,
-                                        text: task.text,
-                                        day: task.day,
-                                        reminder: !task.reminder
-                                      };
-                              } else {
-                                return task;
-                              }
-                            });
-                }));
+    Task$MyResApp.defaultTasksSubject.next(todos.map(function (task) {
+              if (task.id === id) {
+                return {
+                        id: task.id,
+                        text: task.text,
+                        day: task.day,
+                        reminder: !task.reminder
+                      };
+              } else {
+                return task;
+              }
+            }));
+    
   };
   return React.createElement("div", undefined, React.createElement(Header$MyResApp.make, {
                   showAddTask: showAddTask,
@@ -56,7 +51,7 @@ function TaskTracker(Props) {
                   title: "Task Tracker"
                 }), showAddTask ? React.createElement(AddTask$MyResApp.make, {
                     addTask: addTask
-                  }) : null, React.createElement("div", undefined, match$1[0].map(function (task) {
+                  }) : null, React.createElement("div", undefined, todos.map(function (task) {
                       return React.createElement(Task$MyResApp.make, {
                                   task: task,
                                   toggleReminder: toggleReminder,

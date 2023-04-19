@@ -6,15 +6,16 @@ let make = () => {
 
   let toogleShowAddTask = () => setShowAddTask(prev => !prev)
 
-  let (todos, setTodos) = React.useState(() => Task.defaultTasks)
+  let todos = Hooks.useObservableValue(Task.defaultTasksSubject, Task.defaultTasks)
 
-  let addTask = task => setTodos(prevTodos => prevTodos->Array.concat([task]))
+  let addTask = task => Task.defaultTasksSubject->Rxjs.next(todos->Array.concat([task]))
 
-  let deleteTask = id => setTodos(prevTodos => prevTodos->Js.Array2.filter(task => task.id !== id))
+  let deleteTask = id =>
+    Task.defaultTasksSubject->Rxjs.next(todos->Js.Array2.filter(task => task.id !== id))
 
   let toggleReminder = id =>
-    setTodos(prevTodos =>
-      prevTodos->Js.Array2.map(task => {
+    Task.defaultTasksSubject->Rxjs.next(
+      todos->Js.Array2.map(task => {
         if task.id === id {
           {
             ...task,
@@ -23,7 +24,7 @@ let make = () => {
         } else {
           task
         }
-      })
+      }),
     )
 
   <div>

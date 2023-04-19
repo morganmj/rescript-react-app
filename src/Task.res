@@ -26,6 +26,8 @@ let defaultTasks: array<task> = [
   },
 ]
 
+let defaultTasksSubject = Rxjs.BehaviorSubject.make(defaultTasks)
+
 @react.component
 let make = (~task, ~toggleReminder, ~deleteTask) => {
   let className = if task.reminder {
